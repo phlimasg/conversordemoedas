@@ -12,6 +12,16 @@ void main() async {
   //print(await getFinance());
   runApp(MaterialApp(
     home: MyApp(),
+    theme: ThemeData(
+        hintColor: Colors.amber,
+        primaryColor: Colors.white,
+        inputDecorationTheme: const InputDecorationTheme(
+          enabledBorder:
+              OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+          focusedBorder:
+              OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
+          hintStyle: TextStyle(color: Colors.amber),
+        )),
   ));
 }
 
@@ -28,6 +38,25 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final realController = TextEditingController();
+  final dolarController = TextEditingController();
+  final euroController = TextEditingController();
+
+  double dolar = 0;
+  double euro = 0;
+
+  void _realChanged(String text) {
+    print(text);
+  }
+
+  void _dolarChanged(String text) {
+    print(text);
+  }
+
+  void _euroChanged(String text) {
+    print(text);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,12 +105,51 @@ class _MyAppState extends State<MyApp> {
                     ),
                   );
                 } else {
-                  return Container(
-                    color: Colors.amber,
+                  dolar = snapshot.data!["results"]["currencies"]["USD"]["buy"];
+                  euro = snapshot.data!["results"]["currencies"]["EUR"]["buy"];
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        const Icon(
+                          Icons.monetization_on,
+                          size: 150,
+                          color: Colors.amber,
+                        ),
+                        buildTextField(
+                            "Real", "R\$", realController, _realChanged),
+                        const Divider(),
+                        buildTextField(
+                            "Dolar", "US\$", dolarController, _dolarChanged),
+                        const Divider(),
+                        buildTextField(
+                            "Euro", "EU\$", euroController, _euroChanged),
+                      ],
+                    ),
                   );
                 }
             }
           }),
     );
   }
+}
+
+buildTextField(
+    String label, String prefix, TextEditingController c, Function f) {
+  return TextField(
+    controller: c,
+    onChanged: f,
+    keyboardType: TextInputType.number,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.amber),
+      border: OutlineInputBorder(),
+      prefixText: prefix,
+    ),
+    style: TextStyle(
+      color: Colors.amber,
+      fontSize: 25,
+    ),
+  );
 }
