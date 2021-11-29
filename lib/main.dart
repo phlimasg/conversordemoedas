@@ -41,20 +41,62 @@ class _MyAppState extends State<MyApp> {
   final realController = TextEditingController();
   final dolarController = TextEditingController();
   final euroController = TextEditingController();
+  final btcController = TextEditingController();
 
   double dolar = 0;
   double euro = 0;
+  double real = 0;
+  double btc = 0;
 
   void _realChanged(String text) {
-    print(text);
+    if (text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    real = double.parse(text);
+    dolarController.text = (dolar * real).toStringAsFixed(2);
+    euroController.text = (euro * real).toStringAsFixed(2);
+    btcController.text = (real * this.real / btc).toStringAsFixed(15);
   }
 
   void _dolarChanged(String text) {
-    print(text);
+    if (text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double dolar = double.parse(text);
+    realController.text = (dolar * this.dolar).toStringAsFixed(2);
+    euroController.text = (dolar * this.dolar / euro).toStringAsFixed(2);
+    btcController.text = (dolar * this.dolar / btc).toStringAsFixed(15);
   }
 
   void _euroChanged(String text) {
-    print(text);
+    if (text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double euro = double.parse(text);
+    realController.text = (euro * this.euro).toStringAsFixed(2);
+    dolarController.text = (euro * this.euro / dolar).toStringAsFixed(2);
+    btcController.text = (euro * this.euro / btc).toStringAsFixed(15);
+  }
+
+  void _btcChanged(String text) {
+    if (text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double btc = double.parse(text);
+    realController.text = (btc * this.btc).toStringAsFixed(2);
+    dolarController.text = (btc * this.btc / dolar).toStringAsFixed(2);
+    euroController.text = (btc * this.btc / euro).toStringAsFixed(2);
+  }
+
+  void _clearAll() {
+    realController.text = "";
+    dolarController.text = "";
+    euroController.text = "";
+    btcController.text = "";
   }
 
   @override
@@ -107,6 +149,8 @@ class _MyAppState extends State<MyApp> {
                 } else {
                   dolar = snapshot.data!["results"]["currencies"]["USD"]["buy"];
                   euro = snapshot.data!["results"]["currencies"]["EUR"]["buy"];
+                  btc = snapshot.data!["results"]["currencies"]["BTC"]["buy"];
+
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(15),
                     child: Column(
@@ -118,13 +162,16 @@ class _MyAppState extends State<MyApp> {
                           color: Colors.amber,
                         ),
                         buildTextField(
-                            "Real", "R\$", realController, _realChanged),
+                            "Real", "R\$: ", realController, _realChanged),
                         const Divider(),
                         buildTextField(
-                            "Dolar", "US\$", dolarController, _dolarChanged),
+                            "Dolar", "US\$: ", dolarController, _dolarChanged),
                         const Divider(),
                         buildTextField(
-                            "Euro", "EU\$", euroController, _euroChanged),
+                            "Euro", "€: ", euroController, _euroChanged),
+                        const Divider(),
+                        buildTextField(
+                            "Bitcoin", "BTC: ", btcController, _btcChanged),
                       ],
                     ),
                   );
@@ -135,11 +182,11 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-buildTextField(
-    String label, String prefix, TextEditingController c, Function f) {
+Widget buildTextField(
+    String label, String prefix, TextEditingController c, Function? f) {
   return TextField(
     controller: c,
-    onChanged: f,
+    onChanged: f as void Function(String)?,
     keyboardType: TextInputType.number,
     decoration: InputDecoration(
       labelText: label,
